@@ -68,17 +68,6 @@ __NOTES__
 * Testing data duplication, the moost useful range is alphanumeric of 1 to 20 chracters i.e -P 1 to -P 20
 * Testing compression, the most useful range is alphanumeric 1 to 40 i.e. -P 1 to -P 40
 
-__WINDOWS SPARSE FILES - How to make:__
-
-On Windows run the following as administrator
-
-    fsutil File CreateNew  <file name> <size in bytes>
-    fsutil Sparse SetFlag  <file name>
-    fsutil Sparse SetRange <file name> 0 <size in bytes>
-
-
-WSL2-Linux cannot run windows program that require administrator privilege.
-
 _EXAMPLE_
 
    __BTFcreate -D 5 -f 5G -n 50__ 
@@ -90,4 +79,15 @@ _EXAMPLE_
    __BTFcreate -P 35 -f 1M -n 1 -o ~/test_files__ 
    Same as previous, but with files being generated in the _test_files_ directory within the user's home directory. 
    
+_________________________________________________________________
+__WINDOWS SPARSE FILES - How to make:__
+
+On Windows run the following as administrator
+
+    fsutil File CreateNew  <file name> <size in bytes>
+    fsutil Sparse SetFlag  <file name>
+    fsutil Sparse SetRange <file name> 0 <size in bytes>
+
+
+WSL2-Linux cannot run windows commands and programs that require administrator privilege.
    
