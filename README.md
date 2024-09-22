@@ -14,9 +14,8 @@ __-f \<file size\>__   Manditory, minimum 1 byte. File sizes have to be designat
 
 __-o \<exisiting directory\>__  Optional, create file in a exisiting directory. Default is your current directory.  
 
-#### File Contents ####
-
-___Digits only:___ 
+### NOTES
+__File Contents: Digits__ 
 
 __-D n__     Where n is a number 1 to 10.
    
@@ -28,7 +27,7 @@ This selects the numbers in the character pool used
 * n=7 files will be filled with 0 and numbers 1 to 6
 * n=10 files will be filled with a randon numbers of 0 to 9 
 
-___All printable ASCI characters:___ 
+__File Contents: Printable ASCI characters:___ 
 
 __-P n__ Where n is a number 1 to 95.(the ASCI character set)
 * n=1 file will filled with repeats of the character 'A'
@@ -39,10 +38,11 @@ _Examples:_
 * n = 10 will select all characters stating at "a" to "j"
 * n = 4 will select all characters "a" to "d"
 * n = 60 will select all characters from "!" to "\\"
-* n = :x46 will select all characters from "!" to "M"
+* n = 46 will select all characters from "!" to "M"
 
-__-S Sparse file of nulls__ Although disk usage is minimal their apparent size
-     is used to determine usage in capacity usage.  Not to be used on Windows filesystems.
+__File Contents: Sparse File__
+
+__-S__ Null filled sparse files. Although disk usage is minimal their apparent size may be used to determine capacity usage.  Not to be used on Windows filesystems.
 
 __VALIDATE FILE CONTENTS__
 
@@ -51,15 +51,18 @@ ___Validate all Files:___
     od -N <bytes> -Ax -t x1z <file name>
      
 * Where \<bytes\> is the number to check from beginning of file.
-* Non-printable characters will be "dots"
-* For sparse files omit <bytes> as it not required.
+* Non-printable characters will appear as "dots"
+* For sparse files omit \<bytes\> as it not required.
 
-Validate printable character files - Distribution of printable characters:
+___Validate printable character distribution:___
    
     od -a <file name>  | cut -b 9- | tr " " \\n | egrep -v "^$" | sort | uniq -c
-
+_Output_
+* Column 1 : Character count
+* Column 2 : Character being counted. This column should only contain a single charcter, if not then file contents is binary data.
+  
 ___Validate sparse fILes:___ 
-  * du -b <file name>      Shows disk usage in bytes.
+  * du -b \<file name\>    Shows disk usage in bytes.
   * du -b --apparent-size  Shows the size the user sees and used filesystem capacity calculations
   * ls -lsh                Shows disk usage at start of output, apparent size is in its usual place.
 
