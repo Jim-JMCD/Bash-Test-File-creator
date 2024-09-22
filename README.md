@@ -68,16 +68,23 @@ __NOTES__
 * Testing data duplication, the moost useful range is alphanumeric of 1 to 20 chracters i.e -P 1 to -P 20
 * Testing compression, the most useful range is alphanumeric 1 to 40 i.e. -P 1 to -P 40
 
-_EXAMPLE_
+_EXAMPLES_
 
-   __BTFcreate -D 5 -f 5G -n 50__ 
-   Create fifty 5GiB files containing only the randonly distrubeted digits 0, 1 , 2, 3 and 4   
-   
-   __BTFcreate -P 35 -f 1M -n 1__ 
-   Create a single 1MiB files containing these characters randomly distributed __!"#$%&'()*+,-./0123456789:;<=>?\@ABC__
-   
-   __BTFcreate -P 35 -f 1M -n 1 -o ~/test_files__ 
-   Same as previous, but with files being generated in the _test_files_ directory within the user's home directory. 
+Create fifty 5GiB files containing only the randonly distrubeted digits 0, 1 , 2, 3 and 4   
+
+    BTFcreate -D 5 -f 5G -n 50
+     
+Create a single 1MiB file containing these characters randomly distributed __!"#$%&'()*+,-./0123456789:;<=>?\@ABC__  
+
+    BTFcreate -P 35 -f 1M -n 1
+     
+Same as previous, but with files being generated in the _test_files_ directory within the user's home directory. 
+
+    BTFcreate -P 35 -f 1M -n 1 -o ~/test_files
+
+Create 1,000 1KiB files containing these characters randomly distributed __abcdefghij__  
+
+    BTFcreate -P 10 -f 1K -n 1000
    
 _________________________________________________________________
 __WINDOWS SPARSE FILES - How to make:__
