@@ -62,9 +62,10 @@ _Output_
 * Column 2 : Character being counted. This column should only contain a single charcter, if not then file contents is binary data.
   
 ___Validate sparse fILes:___ 
-  * du -b \<file name\>    Shows disk usage in bytes.
-  * du -b --apparent-size  Shows the size the user sees and used filesystem capacity calculations
-  * ls -lsh                Shows disk usage at start of output, apparent size is in its usual place.
+  * _ls -lsh_ Shows disk usage at start of output, apparent size is in its usual place.
+  * _du -b_ Shows disk usage in bytes.
+  * _du -b --apparent-size_ Shows the size the user sees and used filesystem capacity calculations
+
 
 
 __NOTES__
