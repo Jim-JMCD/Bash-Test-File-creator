@@ -8,7 +8,7 @@
 
 ### OPTIONS ###
 
-__-f \<file size\>__   Manditory, minimum 1 byte. File sizes have to be designated by B, K, M or G. Example 2KiB = 2K, 3MiB = 3M 4GiB = 4G
+__-f \<file size\>__   Manditory, minimum 1 byte. File sizes have to be designated by B, K, M or G. Example 2KiB = 2K, 3MiB = 3M 200GiB = 200G
 
 __-o \<exisiting directory\>__  Optional, create file in a exisiting directory. Default is your current directory.  
 
@@ -30,7 +30,7 @@ ___All printable ASCI characters:___
 
 __-P n__ Where n is a number 1 to 95.(the ASCI character set)
 * n=1 file will filled with repeats of the character 'A'
-* n>=2 or n<=26 all characters will be from the lower-case alphabet
+* n>=2 or n<=26 all characters will be from the lower-case Latin alphabet
 * n>=27 characters will be from the 95 printable character set.
   
 _Examples:_
@@ -63,8 +63,10 @@ ___Validate sparse fILes:___
 
 
 __NOTES__
-Binary data that is stored/transmitted may render data deduplication ineffective.
-The smaller range of printable characters used the longer the script runs.
+* Binary data may render storage and transmission data dedplication and compression ineffective.
+* The smaller range of printable characters used the longer the script runs.
+* Testing data duplication, the moost useful range is alphanumeric of 1 to 20 chracters i.e -P 1 to -P 20
+* Testing compression, the most useful range is alphanumeric 1 to 40 i.e. -P 1 to -P 40
 
 __WINDOWS SPARSE FILES - How to make:__
 
