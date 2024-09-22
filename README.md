@@ -1,12 +1,14 @@
 ## Bash (script) Test File Creator  ( *BTFcreate* )
- A test file generator that fills files with random bytes.  File contents can be
+ A test file generator that fills files with random bytes. 
  
+### OPTIONS
+__File Contents__ 
  *  Binary (default) from /dev/urandom.  (Not compressible)
- *  Printable (-P) any characters from the ASCI set. Optional
- *  Digits only (-D) Optioal
- *  Sparse (-S) only for Linux, Unix and WSL2. The sparse file option is __NOT__ to be used on MS Windows filesystems and WSL1, MSYS2, Gitbash and Cygwin - see below
+ * __-P__ any printable characters from the ASCI set. Optional
+ * __-D__ Only the 0 to 9 digits. Optioal
+ * __-S__ Sparse file nulls. Only to be used in Linux, Unix and WSL2. The sparse file option is __NOT__ to be used on MS Windows filesystems and WSL1, MSYS2, Gitbash and Cygwin - see below
 
-### OPTIONS ###
+__Other Options__
 
 __-f \<file size\>__   Manditory, minimum 1 byte. File sizes have to be designated by B, K, M or G. Example 2KiB = 2K, 3MiB = 3M 200GiB = 200G
 
