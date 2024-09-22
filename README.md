@@ -79,8 +79,13 @@ WSL2-Linux cannot run windows program that require administrator privilege.
 
 _EXAMPLE_
 
-   __BTFcreate -D 5 -f 5G -n 50__ Create fifty 5GiB files containing only the randonly distrubeted didgits 0, 1 , 2, 3 and 4   
-   __BTFcreate -P 35 -f 1M -n 1__ Create a single 1MiB files containing these characters randomly distrubeted __!"#$%&'()*+,-./0123456789:;<=>?@ABC__
-   __BTFcreate -P 35 -f 1M -n 1 -o ~/test_files__ Same as previous, but with files being generated in the _test_files_ directory within the user's home directory. 
+   __BTFcreate -D 5 -f 5G -n 50__ 
+   Create fifty 5GiB files containing only the randonly distrubeted digits 0, 1 , 2, 3 and 4   
+   
+   __BTFcreate -P 35 -f 1M -n 1__ 
+   Create a single 1MiB files containing these characters randomly distributed __!"#$%&'()*+,-./0123456789:;<=>?\@ABC__
+   
+   __BTFcreate -P 35 -f 1M -n 1 -o ~/test_files__ 
+   Same as previous, but with files being generated in the _test_files_ directory within the user's home directory. 
    
    
