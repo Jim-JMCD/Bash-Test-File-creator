@@ -1,6 +1,6 @@
-## Bash (script) Test File Creator  ( *BTFcreate* )
- A test file generator that fills files with random bytes. 
- 
+## Bash (script) Test File Creator  ( *BTFcreate* ) 
+A test file generator that fills files with random bytes in a single director
+
 ### OPTIONS
 __File Contents__ 
  *  Binary (default) from /dev/urandom.  (Not compressible)
