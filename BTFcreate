@@ -1,1 +1,245 @@
-Temporarily removed
+#!/usr/bin/env bash
+# Author: Jim J-McDonald, Australia
+#set -x
+function Usage(){
+cat << msg_end_1
+ A test file generator that fills a file with random bytes.
+ File contents can be
+   Binary (default) from /dev/urandom.  (Not compressible)
+   Printable (-P) any characters from the ASCI set.
+   Digits only (-D)
+   Sparse (-S) Linux, Unix and WSL2.  
+   The sparse files option is NOT to be used on MS Windows filesystems and WSL1, MSYS2, Gitbash and Cygwin - see below 
+
+ -f <file size>   Minimum 1 byte
+    File sizes have to be designated by B, K, M or G
+    Example 2KiB = 2K, 3MiB = 3M 4GiB = 4G   
+
+ Digits only
+ -D n  Where n is a number 1 to 10.  
+   This selects the number of numerical characters required.
+     n=1 file will be filled with the character zero '0'
+     n=2 file will be filled with 0 and 1
+     n=3 file will be filled with 0,1 and 2 
+     n=7 file will be filled with 0 and numbers 1 to 6 
+
+  All other printable ASCI characters. 
+  -P n Where n is a number 1 to 95.(the ASCI character set)  
+     n=1 file will filled with repeats of the character 'A' 
+     n>=2 or n<=26 all characters will be from the lower-case alphabet   
+     n>=27 characters will be from the 95 printable character set.
+     Examples:
+     n = 10 will select all characters stating at "a" to "j" 
+     n = 4 will select all characters "a" to "d"
+     n = 60 will select all characters from "!" to "\\"
+     n = 46 will select all characters from "!" to "M"
+  
+  -S Sparse file of nulls. Although disk usage is minimal their apparent size 
+     is used to determine usage in filesystem capacity and other areas.   
+     If used on a MS Windows volume the generated file will NOT be sparse. 
+             
+VALIDATE CONTENTS
+Validate all Files:
+  od -N <bytes> -Ax -t x1z <file name> 
+     Where <bytes> is the number to check from beginning of file.
+     Non-printable characters will be "dots"
+     For sparse files omit <bytes> as it not required.  
+
+Validate printable character files - Distribution of printable characters:
+  od -a <file name>  | cut -b 9- | tr " " \\n | egrep -v "^$" | sort | uniq -c  
+
+Validate sparse fILes verification:
+  du -b <file name>      Shows disk usage in bytes.
+  du -b --apparent-size  Shows the size the user sees and used filesystem capacity calculations
+  ls -lsh                Shows disk usage at start of output, apparent size is in its usual place. 
+          
+
+NOTES  
+Binary data that is stored/transmitted may render data deduplication ineffective.  
+The smaller range of printable characters used the longer the script runs. 
+
+WINDOWS SPARSE FILES - How to make:
+On Windows run the following as administrator 
+  fsutil File CreateNew  <file name> <size in bytes>
+  fsutil Sparse SetFlag  <file name>
+  fsutil Sparse SetRange <file name> 0 <size in bytes> 
+WSL2-Linux cannot run windows program that require administrator privilege. 
+ 
+
+Author: Jim J-McDonald, Australia
+
+msg_end_1
+}
+function Is_int(){
+   num=$1
+   if ! [[ $1 =~ ^[0-9]+$ ]] ; then
+      echo "$2 option requires a positive whole number, decimals not permitted"
+      exit 1
+   elif ((num == 0)) ; then
+      echo "$2  0 not permitted, must be at least 1 "
+      exit 1
+   fi
+}
+#_____________________________________________________
+function Get_bytes(){
+# returns bytes from being given input like 23K, 45M, 2G 
+str=$1
+count="$(echo $str | sed 's/.$//')"
+if ! [[ $count =~ ^[0-9]+$ ]] ; then
+   echo -1
+   return
+elif (( count == 0 )) ; then
+   echo -1
+   return
+fi
+unit="${str:(-1)}"
+case $unit in
+   B) echo $count ;; # Bytes
+   K) echo $((count*(2**10)));; # KiB
+   M) echo $((count*(2**20)));; # MiB
+   G) echo $((count*(2**30)));; # GiB
+   *) echo -1  ;;
+esac
+}
+#_____________________________________________________
+function Valid_size(){
+  valid=$(Get_bytes $1)
+  if (( valid == -1 )); then 
+    echo "${1} is not valid value for ${2}" 	  
+    echo "File sizes have to be designated by B, K, M or G" 
+    echo "See -h for more info" 	  
+    exit 1
+  fi
+}
+###################################################################
+Check_commands(){
+  echo "This" | head -c 3 > /dev/null 2>&1
+  rc=$?
+   if (($rc != 0)); then
+      echo "The -c option not avaialble for the tr command"
+      echo "Required for generating files with printable content"
+      echo "tr -c is not available in Solaris" # AIX ok
+      exit 1
+   fi
+}
+#------------------------------------------------------------
+if [ $# -eq 0 ]; then
+ echo "FAILED. For more info run: $(basename $0) -h"
+  exit 1
+fi  
+Check_commands
+now=$(date +%Y%m%d-%H%M-%S)
+# Some defaults
+output_dir=$PWD
+data="BIN"
+data_tmp="XXX"
+content_msg="filled with random binary data" 
+size_str="0"
+
+while getopts ":P:D:f:o:n:S" opt; do
+      case $opt in
+        P) Is_int $OPTARG "-P" && char_range=$OPTARG
+           if ((char_range < 1 )) || ((char_range > 95 ));then
+              echo " -P requires a number 1-95" ; exit
+           else
+	      data="ALPHA"
+	      Check_commands
+	      char_max=$OPTARG
+           fi ;; # All file data is printable chars	      
+        D) if (($OPTARG < 1 )) || (($OPTARG > 10 ));then
+              echo " -D requires a number 1-10" ; exit
+           else
+	      data="DIGIT"
+	      Check_commands
+	      char_max=$OPTARG
+           fi ;; # All file data is printable digits	      
+        S) data_tmp="SPARSE" ;;
+        f) Valid_size $OPTARG "-f" && size_str="$OPTARG" ;;
+        n) Is_int $OPTARG "-n" && file_num=$OPTARG ;;
+        o) output_dir=$OPTARG  ;; # output dir, default $PWD;
+        :) echo -e "An option requires an argument." ; exit 1 ;;
+        *) Usage ; exit ;;
+      esac
+done
+if [[ "$size_str" == "0" ]] ; then 
+   echo "Require file size (-f) to be set"
+   echo "-h for more information"
+   exit
+fi
+if [[ "$data_tmp" == "SPARSE" ]] ; then 
+  data="SPARSE" # somebody will incorrectly put -S -P or -D together -S has precendence
+fi 
+
+if [ $data == "ALPHA" ] ; then 
+  if (( char_max == 1 )); then
+     char_range="A"
+     content_msg="filled only with the uppercase 'A' character" 
+  elif (( $char_max <= 26 )) ; then # use lowercase alphabet
+     char_end=$(echo $((96+$char_max )) | awk '{printf("%c",$1)}')
+     char_range="a-$char_end"
+     char_sequence="97 $((96+char_max ))"
+     content_msg="containing random selection from the $char_max char set: $(seq $char_sequence | awk '{printf("%c",$1)}')" 
+  elif (( char_max == 60 )); then # special case of "\" the escape char
+     char_range="\!-\\\\\\\\"
+     content_msg="containing random selection from the $char_max char char set: $(seq 33 92 | awk '{printf("%c",$1)}')" 
+  else    
+     char_end=$(echo $((33+char_max )) | awk '{printf("%c",$1)}')
+     char_range="\!-$char_end"
+     char_sequence="33 $((32+char_max))"     
+     content_msg="containing random selection from the $char_max char set: $(seq $char_sequence | awk '{printf("%c",$1)}')" 
+  fi
+elif [ $data == "DIGIT" ]; then
+   if (( char_max == 1 )); then
+     char_range=0  
+     content_msg="filled only with the numerical zero character '0'" 
+   else  
+     char_end=$(echo $((47 + $char_max )) | awk '{printf("%c",$1)}')
+     char_range="0-$char_end"
+     char_sequence="48 $((47+char_max))"     
+     content_msg="containg random selection from the $char_max digit set: $(seq $char_sequence | awk '{printf("%c",$1)}')" 
+   fi    
+fi   
+# if not given a valid output directory bail out
+if [ ! -d "$output_dir" ]; then
+  echo "Requires the output directory to exist"
+  exit 
+fi
+file_out=${output_dir}/btf_$now
+let fsize_bytes=$(Get_bytes $size_str) # convert everything to bytes
+if [ "$data" == "SPARSE" ] ; then 
+   printf "Creating %dx %s SPARSE files in %s\n\n" $file_num "$size_str" "$output_dir" 
+   for (( i= 1; i <= $file_num ; i++)); do 
+     out_f=${file_out}_file_$i	   
+     printf "Creating file %-6s" ${i}	   
+     dd if=/dev/zero of=$out_f bs=1 count=0 seek=$fsize_bytes 2> /dev/null
+     du -h --apparent-size $out_f | awk '{ printf "  DONE: Apparent Size: %s ",$1 }'
+     du -h $out_f |awk '{ printf "Disk Usage: %s  ",$1 }'
+     echo $out_f
+   done 
+   exit
+fi	
+printf "Creating %dx %s files in %s directory \nFiles %s\n\n" $file_num "$size_str" "$output_dir" "$content_msg"
+for (( i= 1; i <= $file_num ; i++)); do 
+  out_f=${file_out}_file_$i	   
+  printf "Creating file %-6s" ${i} 	   
+  if [ "$data" == "BIN" ] ; then 
+     big_file=$((2**30)) # 1GiB
+     if (( fsize_bytes > big_file )); then
+        bsize=1048576 # 1024k, a work around for non-GNU dd
+        bcount=$((fsize_bytes/bsize))
+     else
+        bsize=$fsize_bytes
+        bcount=1
+     fi
+     dd bs=$bsize count=$bcount if=/dev/urandom of=$out_f >/dev/null 2>&1
+  else # ALPHA or DIGIT
+     if [ "$char_range" == "A" ] ; then 
+        tr '\000' 'A' < /dev/zero | head -c $fsize_bytes >$out_f 2>/dev/null
+     elif [ "$char_range" == "0" ] ; then  
+        tr '\000' '0' < /dev/zero | head -c $fsize_bytes >$out_f 2>/dev/null
+     else 
+        tr -d -c $char_range < /dev/urandom | head -c $fsize_bytes >$out_f 2>/dev/null
+     fi   
+  fi   
+  ls -lh $out_f | awk '{printf " Done: %s  %s\n",$5,$9}'
+done # for  
